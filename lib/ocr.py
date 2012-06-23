@@ -1,16 +1,19 @@
 ﻿import webapp2
 from lib.filestore import *
+from lib.models import *
+from google.appengine.api import conversion
 
 class Ocr(webapp2.RequestHandler):
 	def post(self):
 		self.response.headers['Content-Type'] = 'text/plain'
-
+		image = self.request.get("img")
+		
 		# Store the image for laters
 		storage = Filestore()
-		storage.create(self.request.get("img"))
+		storage.create(image)
 		
 		# Create a conversion request from HTML to PNG.
-		asset = conversion.Asset("image/png", self.request.get("img"), "image.PNG")
+		asset = conversion.Asset("image/png", image, "image.PNG")
 		conversion_obj = conversion.Conversion(asset, "text/plain", 1, 1, 1, "en-US")
 
 		result = conversion.convert(conversion_obj)

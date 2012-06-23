@@ -1,11 +1,7 @@
 import webapp2
 import jinja2
 import os
-from lib.models import *
 from lib.ocr import *
-
-from google.appengine.api import conversion
-from google.appengine.api import oauth
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
