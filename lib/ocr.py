@@ -1,10 +1,15 @@
 ﻿import webapp2
+from lib.filestore import *
 
 class Ocr(webapp2.RequestHandler):
 	def post(self):
 		self.response.headers['Content-Type'] = 'text/plain'
 
-      # Create a conversion request from HTML to PNG.
+		# Store the image for laters
+		storage = Filestore()
+		storage.create(self.request.get("img"))
+		
+		# Create a conversion request from HTML to PNG.
 		asset = conversion.Asset("image/png", self.request.get("img"), "image.PNG")
 		conversion_obj = conversion.Conversion(asset, "text/plain", 1, 1, 1, "en-US")
 
