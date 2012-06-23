@@ -1,10 +1,27 @@
 import webapp2
+import jinja2
+import os
+
 from google.appengine.api import conversion
+from google.appengine.ext import db
+
+jinja_environment = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+
+class Food(db.Model):
+  name = db.StringProperty(multiline=True)
+  date = db.DateTimeProperty(auto_now_add=True)
+
+def food_key(guestbook_name=None):
+	return db.Key.from_path('Food', food_name or 'default_food')
 
 class MainPage(webapp2.RequestHandler):
 	def get(self):
-		self.response.headers['Content-Type'] = 'text/plain'
-		self.response.out.write('Hello World!')
+		template_values = {}
+		template = jinja_environment.get_template('index.html')
+		output = template.render(template_values)
+		self.response.out.write(output)
+
 
 class Ocr(webapp2.RequestHandler):
 	def post(self):
@@ -19,8 +36,14 @@ class Ocr(webapp2.RequestHandler):
 		  # Note: in most cases, we will return data all in one asset.
 		  # Except that we return multiple assets for multiple pages image.
 		  for asset in result.assets:
-		  	self.response.out.write(asset.data)
-		  	self.response.out.write(asset)
+			ocr_text = asset.data
+		  	
+			food = Food()
+			food.name = ocr_text
+			food.put()
+
+			self.response.out.write(ocr_text)
+
 		else:
 		  handleError(result.error_code, result.error_text)
 
