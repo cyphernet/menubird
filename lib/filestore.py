@@ -17,10 +17,10 @@ except AttributeError:
 class Filestore():
 	READ_PATH = '/gs/menubird'
 
-	def create(self, file):
+	def create(self, file, filename):
 		# Create a file that writes to Cloud Storage and is readable by everyone in the 
 		# project.
-		write_path = files.gs.create(self.READ_PATH + '/image.png', mime_type='text/plain', 
+		write_path = files.gs.create(self.READ_PATH + '/' + filename, mime_type='text/plain', 
                                                             acl='public-read')
 		# Write to the file.
 		with files.open(write_path, 'a') as fp:
@@ -28,3 +28,5 @@ class Filestore():
 
 		# Finalize the file so it is readable in Google Cloud Storage.
 		files.finalize(write_path)
+		
+		return write_path
