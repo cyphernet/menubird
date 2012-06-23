@@ -12,7 +12,7 @@ class Food(db.Model):
   name = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
 
-def food_key(guestbook_name=None):
+def food_key(food_name=None):
 	return db.Key.from_path('Food', food_name or 'default_food')
 
 class MainPage(webapp2.RequestHandler):
@@ -37,9 +37,10 @@ class Ocr(webapp2.RequestHandler):
 		  # Except that we return multiple assets for multiple pages image.
 		  for asset in result.assets:
 			ocr_text = asset.data
-		  	
+		  	food_name = unicode(ocr_text, 'utf-8').lower()
+			
 			food = Food()
-			food.name = ocr_text
+			food.name = food_name
 			food.put()
 
 			self.response.out.write(ocr_text)
