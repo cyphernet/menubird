@@ -12,7 +12,7 @@ class Ocr(webapp2.RequestHandler):
 		
 		# Store the image for laters
 		storage = Filestore()
-		wp = storage.create(imageFile, fileupload.filename)
+		wp = storage.create(imageFile, fileupload.filename, contentType)
 		
 		# Create a conversion request from HTML to PNG.
 		asset = conversion.Asset(contentType, imageFile, fileupload.filename)
