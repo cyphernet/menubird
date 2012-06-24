@@ -22,3 +22,11 @@ indexes:
   - name: date
     direction: desc
   - name: images
+
+- kind: Food
+  properties:
+  - name: name
+  - name: date
+    direction: desc
+  - name: images
+  - name: info

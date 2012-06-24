@@ -6,6 +6,7 @@ class Food(db.Model):
 	filename = db.StringProperty()
 	location = db.StringProperty()
 	images = db.StringListProperty()
-
+	info = db.StringListProperty()
+	
 def food_key(food_name=None):
 	return db.Key.from_path('Food', food_name or 'default_food')

@@ -1,10 +1,21 @@
-﻿import webapp2
+import webapp2
 from lib.filestore import *
 from lib.models import *
 from lib.googimagesearch import *
 from google.appengine.api import conversion
 import json
+import sys
+from fatsecret import FatSecretClient, FatSecretApplication
+from fatsecret import FatSecretError
+from pprint import pprint
 
+def compStr(food):
+    return u' '.join(food.lower().split())   
+	
+class FatSecretTestApplication(FatSecretApplication):
+    key = "cf3e497b0ae54b3b903b3a4a7844b36e"
+    secret = "a9156b87ab3e4f809b6256309a200ad0"
+	
 class Ocr(webapp2.RequestHandler):
 	def post(self):
 		self.response.headers['Content-Type'] = 'text/plain'
@@ -24,17 +35,18 @@ class Ocr(webapp2.RequestHandler):
 			ocr_text = asset.data
 		  	food_name = unicode(ocr_text, 'utf-8').lower()
 			
-			q = db.GqlQuery("SELECT images FROM Food " +
+			q = db.GqlQuery("SELECT * FROM Food " +
 							"WHERE name = :1 " +
 							"ORDER BY date DESC LIMIT 1",
 							food_name)
-
-			results = q.fetch(10)
 			
+			results = q.fetch(10)
+			food_description = []
+			resp_images = []
 			if results:
-				resp_images = []
-				for p in results:
-					resp_images.append(p.images[0])				
+			  for x in results:
+				resp_images.append(x.images)
+				food_description.append(x.info)
 			else:
 				# Store the image for laters
 				storage = Filestore()
@@ -42,11 +54,20 @@ class Ocr(webapp2.RequestHandler):
 			
 				# self.response.out.write(saved_food.id())
 				# self.response.out.write('\r\n')
+				client = FatSecretClient().connect().setApplication(FatSecretTestApplication)
+				food = (client.foods.search(search_expression=food_name, max_results=3))
+				if u'foods' in food:
+					if u'food' in food[u'foods']:
+						foodObj = food[u'foods'][u'food'][0]
+						for f in food[u'foods'][u'food']:
+							if(compStr(f[u'food_name']) == food_name):
+							   foodObj = f
+						food_description.append(foodObj[u'food_description'])
+				
 				ip = self.request.remote_addr
 				#self.response.out.write(ip)
 				goog = GoogImageSearch()
 				res = goog.search(ocr_text, ip)
-				resp_images = []
 				for i in res:
 					resp_images.append(i[u'url'])
 					
@@ -55,9 +76,10 @@ class Ocr(webapp2.RequestHandler):
 				food.filename = fileupload.filename
 				food.location = 'https://storage.cloud.google.com/menubird/'+fileupload.filename
 				food.images = resp_images
-				saved_food = food.put()	
+				food.info = food_description
+				saved_food = food.put()
 					
-			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images)))
+			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
 			
 		else:
 		  handleError(result.error_code, result.error_text)
