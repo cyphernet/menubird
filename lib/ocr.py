@@ -75,7 +75,7 @@ class Ocr(webapp2.RequestHandler):
 
 				ocr_text = urllib2.urlopen(request).read()
 				food_name = unicode(ocr_text, 'utf-8').lower()
-		food_name = re.sub("[^A-Za-z]", "", food_name)
+		food_name = re.sub("[^A-Za-z]", " ", food_name)
 		food_name = ' '.join(food_name.split())
 		q = db.GqlQuery("SELECT * FROM Food " +
 						"WHERE name = :1 " +
