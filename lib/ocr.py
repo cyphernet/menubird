@@ -55,7 +55,7 @@ class Ocr(webapp2.RequestHandler):
 				# self.response.out.write(saved_food.id())
 				# self.response.out.write('\r\n')
 				client = FatSecretClient().connect().setApplication(FatSecretTestApplication)
-				food = (client.foods.search(search_expression=food_name, max_results=3))
+				food = (client.foods.search(search_expression=ocr_text, max_results=3))
 				if u'foods' in food:
 					if u'food' in food[u'foods']:
 						foodObj = food[u'foods'][u'food'][0]
