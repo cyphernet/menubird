@@ -11,6 +11,7 @@ from fatsecret import FatSecretClient, FatSecretApplication
 from fatsecret import FatSecretError
 from pprint import pprint
 import re
+import time
 
 def compStr(food):
     return u' '.join(food.lower().split())   
@@ -94,9 +95,10 @@ class Ocr(webapp2.RequestHandler):
 		  self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
 		else:
 			# Store the image for laters
+			time_stamp = str(time.time())
 			food_description = {}
 			storage = Filestore()
-			wp = storage.create(imageFile, filename, contentType)
+			wp = storage.create(imageFile, time_stamp, contentType)
 		
 			# self.response.out.write(saved_food.id())
 			# self.response.out.write('\r\n')
@@ -120,7 +122,7 @@ class Ocr(webapp2.RequestHandler):
 			goog = GoogImageSearch()
 			search = food_description.get('food_name','')
 			if search != '':
-				res = goog.search(ocr_text, ip)
+				res = goog.search('food ' + ocr_text, ip)
 				for i in res:
 					resp_images.append(i[u'url'])
 			else:
@@ -152,7 +154,7 @@ class Ocr(webapp2.RequestHandler):
 			food = Food()
 			food.name = food_name
 			food.filename = filename
-			food.location = 'https://storage.cloud.google.com/menubird/'+filename
+			food.location = 'https://storage.cloud.google.com/menubird/'+time_stamp
 			food.images = resp_images
 			food.info = str(foodInfo)
 			saved_food = food.put()
