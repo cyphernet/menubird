@@ -10,6 +10,7 @@ import urllib2
 from fatsecret import FatSecretClient, FatSecretApplication
 from fatsecret import FatSecretError
 from pprint import pprint
+import re
 
 def compStr(food):
     return u' '.join(food.lower().split())   
@@ -74,7 +75,8 @@ class Ocr(webapp2.RequestHandler):
 
 				ocr_text = urllib2.urlopen(request).read()
 				food_name = unicode(ocr_text, 'utf-8').lower()
-		
+		food_name = re.sub("[^A-Za-z]", "", food_name)
+		food_name = ' '.join(food_name.split())
 		q = db.GqlQuery("SELECT * FROM Food " +
 						"WHERE name = :1 " +
 						"ORDER BY date DESC LIMIT 1",
