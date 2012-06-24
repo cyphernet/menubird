@@ -118,7 +118,7 @@ class Ocr(webapp2.RequestHandler):
 			goog = GoogImageSearch()
 			search = food_description.get('food_name','')
 			if search != '':
-				res = goog.search(food_description['food_name'], ip)
+				res = goog.search(ocr_text, ip)
 				for i in res:
 					resp_images.append(i[u'url'])
 			else:
