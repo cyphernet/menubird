@@ -2,6 +2,7 @@ import webapp2
 from lib.filestore import *
 from lib.models import *
 from lib.googimagesearch import *
+from lib.multipart import *
 from google.appengine.api import conversion
 import json
 import sys
@@ -18,7 +19,12 @@ class FatSecretTestApplication(FatSecretApplication):
     secret = "a9156b87ab3e4f809b6256309a200ad0"
 	
 class Ocr(webapp2.RequestHandler):
+	
 	def post(self):
+	
+	
+		use_google_ocr = False
+		
 		self.response.headers['Content-Type'] = 'text/plain'
 		imageFile = self.request.get("img")
 
@@ -35,20 +41,39 @@ class Ocr(webapp2.RequestHandler):
 			contentType = 'text'
 		else:
 			contentType = getContentType( filename )
+			
+			if use_google_ocr:
+				# Create a conversion request from HTML to PNG.
+				asset = conversion.Asset(contentType, imageFile, filename)
+				conversion_obj = conversion.Conversion(asset, "text/plain", 1, 1, 1, "en-US")
 
-			# Create a conversion request from HTML to PNG.
-			asset = conversion.Asset(contentType, imageFile, filename)
-			conversion_obj = conversion.Conversion(asset, "text/plain", 1, 1, 1, "en-US")
-
-			result = conversion.convert(conversion_obj)
-			if result.assets:
-			  # Note: in most cases, we will return data all in one asset.
-			  # Except that we return multiple assets for multiple pages image.
-			  for asset in result.assets:
-				ocr_text = asset.data
-				food_name = unicode(ocr_text, 'utf-8').lower()
+				result = conversion.convert(conversion_obj)
+				if result.assets:
+				  # Note: in most cases, we will return data all in one asset.
+				  # Except that we return multiple assets for multiple pages image.
+				  for asset in result.assets:
+					ocr_text = asset.data
+					food_name = unicode(ocr_text, 'utf-8').lower()
+				else:
+					handleError(result.error_code, result.error_text)
 			else:
-				handleError(result.error_code, result.error_text)
+			
+				# Create the form with simple fields
+				form = MultiPartForm()
+
+				# Add a fake file
+				form.add_file('img', 'asd.png', 	
+					fileHandle=StringIO(imageFile))
+
+				# Build the request
+				request = urllib2.Request('http://ec2-23-20-185-35.compute-1.amazonaws.com/t.php')
+				body = str(form)
+				request.add_header('Content-type', form.get_content_type())
+				request.add_header('Content-length', len(body))
+				request.add_data(body)
+
+				ocr_text = urllib2.urlopen(request).read()
+				food_name = unicode(ocr_text, 'utf-8').lower()
 		
 		q = db.GqlQuery("SELECT * FROM Food " +
 						"WHERE name = :1 " +
