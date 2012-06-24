@@ -63,7 +63,8 @@ class Ocr(webapp2.RequestHandler):
 		  for x in results:
 			resp_images.append(x.images)
 			food_description.append(x.info)
-			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
+		  food_description = json.dumps(food_description)
+		  self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
 		else:
 			# Store the image for laters
 			food_description = {}
