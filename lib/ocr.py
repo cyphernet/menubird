@@ -12,10 +12,6 @@ class Ocr(webapp2.RequestHandler):
 		fileupload = self.request.POST.get("img",None)
 		contentType = getContentType( fileupload.filename )
 		
-		# Store the image for laters
-		storage = Filestore()
-		wp = storage.create(imageFile, fileupload.filename, contentType)
-		
 		# Create a conversion request from HTML to PNG.
 		asset = conversion.Asset(contentType, imageFile, fileupload.filename)
 		conversion_obj = conversion.Conversion(asset, "text/plain", 1, 1, 1, "en-US")
@@ -40,7 +36,10 @@ class Ocr(webapp2.RequestHandler):
 				for p in results:
 					resp_images.append(p.images[0])				
 			else:
-
+				# Store the image for laters
+				storage = Filestore()
+				wp = storage.create(imageFile, fileupload.filename, contentType)
+			
 				# self.response.out.write(saved_food.id())
 				# self.response.out.write('\r\n')
 				ip = self.request.remote_addr
