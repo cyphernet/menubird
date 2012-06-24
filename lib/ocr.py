@@ -24,17 +24,16 @@ class Ocr(webapp2.RequestHandler):
 
 		foodName = self.request.POST.get("word",'')
 		fileupload = self.request.POST.get("img",None)
-		if len( foodName ) > 0 or len( fileupload ) == 0: 
+		try:
+			filename = fileupload.filename
+		except:
+			filename = ''
+		if len( foodName ) > 0 or len( filename ) == 0: 
 			food_name = foodName
 			ocr_text = foodName
 			filename = ''
 			contentType = 'text'
 		else:
-			
-			try:
-				filename = fileupload.filename
-			except:
-				filename = ''
 			contentType = getContentType( filename )
 
 			# Create a conversion request from HTML to PNG.
