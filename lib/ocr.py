@@ -76,22 +76,24 @@ class Ocr(webapp2.RequestHandler):
 			food = (client.foods.search(search_expression=ocr_text, max_results=3))
 			if u'foods' in food:
 				if u'food' in food[u'foods']:
-					foodObj = food[u'foods'][u'food'][0]
-					for f in food[u'foods'][u'food']:
-						if(compStr(f[u'food_name']) == food_name):
-						   foodObj = f
-					food_description['description'] = foodObj[u'food_description']
-					food_description['food_id'] = foodObj[u'food_id']
-					food_description['food_name'] = foodObj[u'food_name']
+					foodObj = food[u'foods'][u'food'].get(0,'')
+					if foodObj != '':
+						for f in food[u'foods'][u'food']:
+							if(compStr(f[u'food_name']) == food_name):
+							   foodObj = f
+						food_description['description'] = foodObj[u'food_description']
+						food_description['food_id'] = foodObj[u'food_id']
+						food_description['food_name'] = foodObj[u'food_name']
 			ip = self.request.remote_addr
 			#self.response.out.write(ip)
 			goog = GoogImageSearch()
-			if len( food_description['food_name'] ) > 0:
+			search = food_description.get('food_name','')
+			if search != '':
 				res = goog.search(food_description['food_name'], ip)
 				for i in res:
 					resp_images.append(i[u'url'])
 			else:
-				resp_images = ''
+				resp_images = []
 			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
 
 			if 'food_id' in food_description:
