@@ -28,27 +28,36 @@ class Ocr(webapp2.RequestHandler):
 			ocr_text = asset.data
 		  	food_name = unicode(ocr_text, 'utf-8').lower()
 			
-			food = Food()
-			food.name = food_name
-			food.filename = fileupload.filename
-			food.location = 'https://storage.cloud.google.com/menubird/'+fileupload.filename
-			saved_food = food.put()
+			q = db.GqlQuery("SELECT images FROM Food " +
+							"WHERE name = :1 " +
+							"ORDER BY date DESC LIMIT 1",
+							food_name)
+
+			results = q.fetch(10)
 			
-			# self.response.out.write(saved_food.id())
-			# self.response.out.write('\r\n')
-			ip = self.request.remote_addr
-			#self.response.out.write(ip)
-			goog = GoogImageSearch()
-			res = goog.search(ocr_text, ip)
-			resp_images = []
-			for i in res:
-				food_image = Food_image()
-				food_image.name = i[u'titleNoFormatting']
-				food_image.url = i[u'url']
-				food_image.food = saved_food
-				saved_food_image = food_image.put()
-				resp_images.append(i[u'url'])
-				
+			if results:
+				resp_images = []
+				for p in results:
+					resp_images.append(p.images[0])				
+			else:
+
+				# self.response.out.write(saved_food.id())
+				# self.response.out.write('\r\n')
+				ip = self.request.remote_addr
+				#self.response.out.write(ip)
+				goog = GoogImageSearch()
+				res = goog.search(ocr_text, ip)
+				resp_images = []
+				for i in res:
+					resp_images.append(i[u'url'])
+					
+				food = Food()
+				food.name = food_name
+				food.filename = fileupload.filename
+				food.location = 'https://storage.cloud.google.com/menubird/'+fileupload.filename
+				food.images = resp_images
+				saved_food = food.put()	
+					
 			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images)))
 			
 		else:
