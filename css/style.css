@@ -9,7 +9,7 @@
 #description {display: block; width: 84%; text-align: center; padding-top: 30px; color: #6d6d6d; margin-bottom: 30px;}
 .badge {margin:0px 20px;}
 #github {height: 40px;}
-
+#copyright {top:620px; position: absolute; width: 100%; text-align: center; font-size: 12px; font-weight: bold; color: #d6d6d6;}
 
 
 /* HTML5 Boilerplate  */
