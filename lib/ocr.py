@@ -1,7 +1,9 @@
 ﻿import webapp2
 from lib.filestore import *
 from lib.models import *
+from lib.googimagesearch import *
 from google.appengine.api import conversion
+import json
 
 class Ocr(webapp2.RequestHandler):
 	def post(self):
@@ -30,10 +32,24 @@ class Ocr(webapp2.RequestHandler):
 			food.name = food_name
 			food.filename = fileupload.filename
 			food.location = 'https://storage.cloud.google.com/menubird/'+fileupload.filename
-			food.put()
-
-			self.response.out.write(food_name)
-
+			saved_food = food.put()
+			
+			# self.response.out.write(saved_food.id())
+			# self.response.out.write('\r\n')
+			ip = self.request.remote_addr
+			goog = GoogImageSearch()
+			res = goog.search(food_name, ip)
+			resp_images = []
+			for i in res:
+				food_image = Food_image()
+				food_image.name = i[u'titleNoFormatting']
+				food_image.url = i[u'url']
+				food_image.food = saved_food
+				saved_food_image = food_image.put()
+				resp_images.append(i[u'url'])
+				
+			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images)))
+			
 		else:
 		  handleError(result.error_code, result.error_text)
 
