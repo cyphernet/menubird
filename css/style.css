@@ -1,3 +1,17 @@
+/* Custom Styles  */
+#gradientBar { background-image: url(../images/redGradient.png); height: 340px; width: 100%; position: absolute; z-index: 1; top: 0px;}
+#container { width: 900px; height: 100%; position: relative;}
+#phone {z-index: 999; height: 400px; position: absolute; left: 120px; top: 140px;}
+#phoneDroid {z-index: 999; height: 440px; position: absolute; left: 0px; top: 110px;}
+#contentContainer {position: absolute; right:0px; top: 100px; width: 500px; height: 500px;}
+#menuBirdText {z-index: 999; position: absolute; right: 69px; height: 80px;}
+#descriptionBg {top:80px; background: url(../images/descriptionBg.png) no-repeat; width: 500px; height: 400px; position: absolute; z-index: 999;}
+#description {display: block; margin: 40px; width: 425px; text-align: center; padding: 0px 30px 0px 30px; color: #6d6d6d;}
+.badge {margin:0px 20px;}
+#github {height: 40px;}
+
+
+
 /* HTML5 Boilerplate  */
 
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
