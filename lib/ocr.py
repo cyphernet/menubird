@@ -82,13 +82,16 @@ class Ocr(webapp2.RequestHandler):
 						   foodObj = f
 					food_description['description'] = foodObj[u'food_description']
 					food_description['food_id'] = foodObj[u'food_id']
+					food_description['food_name'] = foodObj[u'food_name']
 			ip = self.request.remote_addr
 			#self.response.out.write(ip)
 			goog = GoogImageSearch()
-			res = goog.search(ocr_text, ip)
-			for i in res:
-				resp_images.append(i[u'url'])
-			
+			if len( food_description['food_name'] ) > 0:
+				res = goog.search(food_description['food_name'], ip)
+				for i in res:
+					resp_images.append(i[u'url'])
+			else:
+				resp_images = ''
 			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
 
 			if 'food_id' in food_description:
