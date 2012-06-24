@@ -144,12 +144,15 @@ class Ocr(webapp2.RequestHandler):
 						food_temp[r] = r[i]
 					food_description[r]	= food_temp
 			
+			
+			foodInfo = food_description.get('description','')
+			
 			food = Food()
 			food.name = food_name
 			food.filename = filename
 			food.location = 'https://storage.cloud.google.com/menubird/'+filename
 			food.images = resp_images
-			food.info = json.dumps(food_description)
+			food.info = str(foodInfo)
 			saved_food = food.put()
 					
 
