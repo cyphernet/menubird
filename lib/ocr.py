@@ -37,8 +37,9 @@ class Ocr(webapp2.RequestHandler):
 			# self.response.out.write(saved_food.id())
 			# self.response.out.write('\r\n')
 			ip = self.request.remote_addr
+			#self.response.out.write(ip)
 			goog = GoogImageSearch()
-			res = goog.search(food_name, ip)
+			res = goog.search(ocr_text, ip)
 			resp_images = []
 			for i in res:
 				food_image = Food_image()
