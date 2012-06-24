@@ -76,7 +76,10 @@ class Ocr(webapp2.RequestHandler):
 			food = (client.foods.search(search_expression=ocr_text, max_results=3))
 			if u'foods' in food:
 				if u'food' in food[u'foods']:
-					foodObj = food[u'foods'][u'food'].get(0,'')
+					try:
+						foodObj = food[u'foods'][u'food'][0]
+					except:
+						foodObj = ''
 					if foodObj != '':
 						for f in food[u'foods'][u'food']:
 							if(compStr(f[u'food_name']) == food_name):
