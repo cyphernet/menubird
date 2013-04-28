@@ -3,10 +3,13 @@ from lib.filestore import *
 from lib.models import *
 from lib.googimagesearch import *
 from lib.multipart import *
-from google.appengine.api import conversion
+#from google.appengine.api import conversion
 import json
 import sys
 import urllib2
+import urllib
+import pprint 
+
 from fatsecret import FatSecretClient, FatSecretApplication
 from fatsecret import FatSecretError
 from pprint import pprint
@@ -64,11 +67,11 @@ class Ocr(webapp2.RequestHandler):
 				form = MultiPartForm()
 
 				# Add a fake file
-				form.add_file('img', 'asd.png', 	
+				form.add_file('file', 'asd.png', 	
 					fileHandle=StringIO(imageFile))
 
 				# Build the request
-				request = urllib2.Request('http://ec2-23-20-185-35.compute-1.amazonaws.com/t.php')
+				request = urllib2.Request('http://198.46.152.175:8080/ocr')
 				body = str(form)
 				request.add_header('Content-type', form.get_content_type())
 				request.add_header('Content-length', len(body))
@@ -104,6 +107,17 @@ class Ocr(webapp2.RequestHandler):
 			# self.response.out.write('\r\n')
 			client = FatSecretClient().connect().setApplication(FatSecretTestApplication)
 			food = (client.foods.search(search_expression=ocr_text, max_results=3))
+			yummly_key = 'b6998854&_app_key=e1bf1eeff4ea2aa5bb7d8fabebc27a67'
+			fs = 'q='+ urllib.quote(ocr_text);
+			url = 'http://api.yummly.com/v1/api/recipes?_app_id=b6998854&_app_key=' + yummly_key+'&'+fs +'&requirePictures=true';
+			try:
+				data = urllib2.urlopen(url).read()
+				fdata= json.loads(data)
+			except urllib2.HTTPError, e:
+			 print "HTTP error: %d" % e.code
+			except urllib2.URLError, e:
+			 print "Network error: %s" % e.reason.args[1]
+			
 			if u'foods' in food:
 				if u'food' in food[u'foods']:
 					try:
@@ -127,8 +141,8 @@ class Ocr(webapp2.RequestHandler):
 					resp_images.append(i[u'url'])
 			else:
 				resp_images = []
-			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
-
+			#self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
+			self.response.out.write(json.dumps(dict(flavor=data['matches'][0]['flavors'], ingredients=data['matches'][0]['ingredients'],images=data['matches'][0]['smallImageUrls'])))
 			if 'food_id' in food_description:
 				food = client.food.get(food_id=food_description['food_id'])
 				if u'food' in food:
