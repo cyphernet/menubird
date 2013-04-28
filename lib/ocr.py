@@ -97,7 +97,6 @@ class Ocr(webapp2.RequestHandler):
 				food_description.append(x.info)
 				f_flavors = json.loads(x.flavors)
 			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description,flavors=f_flavors)))
-			self.response.out.write('hello world')
 		else:
 			# Store the image for laters
 			time_stamp = str(time.time())
