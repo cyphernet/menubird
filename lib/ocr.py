@@ -89,13 +89,15 @@ class Ocr(webapp2.RequestHandler):
 		results = q.fetch(1)
 		
 		resp_images = []
+		food_description = []
 		if results:
-		  food_description = []
-		  for x in results:
-			resp_images.append(x.images)
-			food_description.append(x.info)
-		  food_description = json.dumps(food_description)
-		  self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
+			f_flavors =''
+			for x in results:
+				resp_images.append(x.images)
+				food_description.append(x.info)
+				f_flavors = json.loads(x.flavors)
+			self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description,flavors=f_flavors)))
+			self.response.out.write('hello world')
 		else:
 			# Store the image for laters
 			time_stamp = str(time.time())
@@ -142,7 +144,7 @@ class Ocr(webapp2.RequestHandler):
 			else:
 				resp_images = []
 			#self.response.out.write(json.dumps(dict(word=food_name, images=resp_images, info=food_description)))
-			self.response.out.write(json.dumps(dict(flavor=data['matches'][0]['flavors'], ingredients=data['matches'][0]['ingredients'],images=data['matches'][0]['smallImageUrls'])))
+			self.response.out.write(json.dumps(dict(word=food_name,flavor=fdata['matches'][0]['flavors'], ingredients=fdata['matches'][0]['ingredients'],images=fdata['matches'][0]['smallImageUrls'])))
 			if 'food_id' in food_description:
 				food = client.food.get(food_id=food_description['food_id'])
 				if u'food' in food:
@@ -169,8 +171,9 @@ class Ocr(webapp2.RequestHandler):
 			food.name = food_name
 			food.filename = filename
 			food.location = 'https://storage.cloud.google.com/menubird/'+time_stamp
-			food.images = resp_images
-			food.info = str(foodInfo)
+			food.images = fdata['matches'][0]['smallImageUrls']
+			food.info = fdata['matches'][0]['ingredients']
+			food.flavors = json.dumps(fdata['matches'][0]['flavors'])
 			saved_food = food.put()
 					
 
