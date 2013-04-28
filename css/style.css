@@ -10,6 +10,7 @@
 .badge {margin:0px 20px;}
 #github {height: 40px;}
 #copyright {top:620px; position: absolute; width: 100%; text-align: center; font-size: 12px; font-weight: bold; color: #d6d6d6;}
+#foot {position: absolute; top: 600px; left: -44px}
 
 
 /* HTML5 Boilerplate  */
